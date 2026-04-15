@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Play, Inbox } from 'lucide-react';
+import { Play, Inbox, Download } from 'lucide-react';
 import { StatsBar } from '@/components/StatsBar';
 import { FilterBar } from '@/components/FilterBar';
 import { TenderCard } from '@/components/TenderCard';
@@ -49,6 +49,12 @@ export default async function DashboardPage({
     search: sp.search,
     limit: 200,
   };
+
+  // Pass-through for the export link so it inherits current filters.
+  const exportParams = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (v) exportParams.set(k, v);
+  }
 
   let stats = {
     totalActive: 0,
@@ -100,6 +106,15 @@ export default async function DashboardPage({
               Showing <strong>{tenders.length}</strong> of {total} tender
               {total === 1 ? '' : 's'}
             </span>
+            {total > 0 && (
+              <a
+                href={`/api/tenders/export?${exportParams.toString()}`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-neutral-300 bg-white px-2.5 py-1.5 font-medium text-neutral-700 hover:bg-neutral-50"
+              >
+                <Download size={12} />
+                Export to Excel
+              </a>
+            )}
           </div>
 
           {tenders.length === 0 ? (
