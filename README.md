@@ -114,24 +114,29 @@ See [tender-docs/08_IMPLEMENTATION_PLAN.md](tender-docs/08_IMPLEMENTATION_PLAN.m
    - `CRON_SECRET`
 5. Deploy. The first scrape from `/scrape` will populate the database.
 
-### Vercel Cron
+### Daily scrape
 
-[tender-tracker/vercel.json](tender-tracker/vercel.json) declares one cron:
+The `/api/cron/daily-scrape` route exists and runs a full CPPP scrape end-to-end. It's currently **not scheduled** in `vercel.json` because Vercel Hobby has a 10-second function timeout and a full CPPP run takes ~7 minutes — Vercel would kill it mid-run.
 
+**Two ways to use it:**
+
+1. **Manual scrapes from `/scrape` page (recommended on Hobby).** The UI orchestrates per-org calls each under 10s, so no timeout issue.
+2. **Trigger the cron route from outside** (free external scheduler):
+   ```bash
+   curl -sS -H "Authorization: Bearer $CRON_SECRET" \
+     https://your-deployment.vercel.app/api/cron/daily-scrape
+   ```
+   Will time out on Hobby unless you refactor it to chunk per-org.
+
+**To re-enable native Vercel Cron** (after upgrading to Pro):
+
+Add this back to `vercel.json`:
 ```json
-{ "path": "/api/cron/daily-scrape", "schedule": "30 1 * * *" }
+"crons": [
+  { "path": "/api/cron/daily-scrape", "schedule": "30 1 * * *" }
+]
 ```
-
-That's **01:30 UTC = 07:00 IST**, daily. Vercel sends `Authorization: Bearer ${CRON_SECRET}` automatically. The route refuses to run without that header, so it's safe to expose.
-
-> **Hobby plan caveat:** Hobby has a 10-second function timeout, but a full CPPP run takes ~7 minutes. The cron route will time out. Either upgrade to **Pro** (60s default, raise to 300s via `vercel.json`), or skip the cron entirely and trigger scrapes manually from `/scrape`. The chunked org-by-org orchestration in the UI works fine on Hobby because each request stays under 10s.
-
-### Manually trigger the cron
-
-```bash
-curl -sS -H "Authorization: Bearer $CRON_SECRET" \
-  https://your-deployment.vercel.app/api/cron/daily-scrape
-```
+That's 01:30 UTC = 07:00 IST daily. Vercel sends `Authorization: Bearer ${CRON_SECRET}` automatically.
 
 ## License
 
