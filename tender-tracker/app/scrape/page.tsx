@@ -1,6 +1,7 @@
 import { formatDistanceToNow } from 'date-fns';
-import { Clock, Info } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { CPPPScrapeClient } from '@/components/CPPPScrapeClient';
+import { IREPSScrapeClient } from '@/components/IREPSScrapeClient';
 import { getServerSupabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
@@ -66,28 +67,21 @@ export default async function ScrapePage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-neutral-200 bg-white p-4 opacity-75">
+      <section className="rounded-lg border border-neutral-200 bg-white p-4">
         <header className="flex flex-wrap items-baseline justify-between gap-2">
           <div>
             <h2 className="text-base font-semibold text-neutral-900">
               IREPS · ireps.gov.in
             </h2>
             <p className="mt-0.5 text-xs text-neutral-500">
-              Requires OTP from the IREPS mobile app (not SMS). Same OTP valid for ~24h.
+              Requires OTP from the IREPS Aapoorti mobile app (not SMS). Same OTP valid ~24h.
             </p>
           </div>
           <LastRunLabel last={irepsLast} />
         </header>
 
-        <div className="mt-3 rounded-md border border-dashed border-neutral-300 bg-neutral-50 p-3">
-          <div className="flex items-start gap-2 text-xs text-neutral-600">
-            <Info size={14} className="mt-0.5 shrink-0 text-neutral-400" />
-            <div>
-              IREPS scraping ships in <strong>Phase 5–6</strong>. You&apos;ll click{' '}
-              <em>Initialize session</em>, enter your mobile number, then type the OTP shown in
-              the IREPS app. The backend then scrapes all 17 railway zones sequentially.
-            </div>
-          </div>
+        <div className="mt-3">
+          <IREPSScrapeClient />
         </div>
       </section>
     </div>
